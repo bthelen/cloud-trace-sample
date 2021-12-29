@@ -140,5 +140,5 @@ $ ./cleanup.sh
 $ popd
  
 # delete service account 
-$ gcloud iam service-accounts delete trace-test-service-account
+$ gcloud iam service-accounts delete trace-test-service-account@$PROJECT_ID.iam.gserviceaccount.com --quiet
 ```
