@@ -47,6 +47,7 @@ $ git clone <put url here when we have one>
 # change to correct directory if not already there
 $ cd cloud-trace-sample
 # In each of the directories, setup the environment and run compute-service, fib-service, and fact-service
+# You'll have to use multiple cloud shell terminals or tmux or the like
 $ export GOOGLE_CLOUD_PROJECT=`gcloud config list --format 'value(core.project)'`
 $ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
@@ -59,7 +60,7 @@ $ for i in 1 2 3 4 5 6 7 8 9 10 11 12; do curl -k http://localhost:8080/api/comp
 $ for i in 1 2 3 4 5 6 7 8 9 10 11 12; do curl -k http://localhost:8080/api/compute/fact/$i; done
 ```
 
-## Open Traces in Cloud Trace
+## <a name="view-trace"></a>Open Traces in Cloud Trace
 
 * Open [Google Cloud Console](https://console.cloud.google.com)
 * Find `Trace` under the `Operations` section in the Navigation Bar
@@ -70,42 +71,74 @@ $ for i in 1 2 3 4 5 6 7 8 9 10 11 12; do curl -k http://localhost:8080/api/comp
 
 # Deploy to Cloud Run
 
-export PROJECT_ID=$(gcloud config get-value project)
-gcloud config set run/region us-central1
-./compute-service/create-service-account.sh
+## Setup Service Account and Environment Variables
 
-pushd fact-service
-./build-and-deploy.sh
-export FACT_SERVICE_URL=$(gcloud run services describe fact-service --format="value(status.url)")
-popd
+```bash
+$ export PROJECT_ID=$(gcloud config get-value project)
+$ gcloud config set run/region us-central1
+$ ./compute-service/create-service-account.sh
+```
 
-pushd fib-service
-./build-and-deploy.sh
-export FIB_SERVICE_URL=$(gcloud run services describe fib-service --format="value(status.url)")
-popd
+## Deploy Fact Service and Test
 
-pushd compute-service
-sed -i '' "s/%fact-service-url%/$FACT_SERVICE_URL/"  src/main/resources/application.yml
-./build-and-deploy.sh
-export COMPUTE_SERVICE_URL=$(gcloud run services describe compute-service --format="value(status.url)")
-popd
+```bash
+$ pushd fact-service
+$ ./build-and-deploy.sh
+$ export FACT_SERVICE_URL=$(gcloud run services describe fact-service --format="value(status.url)")
+$ ./test.sh
+$ popd
+```
 
+## Deploy Fib Service and Test
 
+```bash
+$ pushd fib-service
+$ ./build-and-deploy.sh
+$ export FIB_SERVICE_URL=$(gcloud run services describe fib-service --format="value(status.url)")
+$ ./test.sh
+$ popd
+```
 
+## Deploy Compute Service and Test
+
+```bash
+$ pushd compute-service
+# patch in the URLs for the downstream services
+$ sed -i "s~%fact-service-url%~$FACT_SERVICE_URL~g"  src/main/resources/application.yml
+$ sed -i "s~%fib-service-url%~$FIB_SERVICE_URL~g"  src/main/resources/application.yml
+$ ./build-and-deploy.sh
+$ export COMPUTE_SERVICE_URL=$(gcloud run services describe compute-service --format="value(status.url)")
+# run a test passing through to the fact service
+$ ./test-fact.sh
+# run a test passing through to the fib service
+$ ./test-fib.sh
+$ popd
+```
+
+## Open Traces in Cloud Trace
+
+[Instructions](#view-trace) 
 
 ## Cleanup Deployments
 
-pushd compute-service
-./cleanup.sh
-popd
+Remove the Cloud Run services and the Service Account used for the deployment.
 
-pushd fib-service
-./cleanup.sh
-popd
+```bash
+# cleanup compute service
+$ pushd compute-service
+$ ./cleanup.sh
+$ popd
 
-pushd fact-service
-./cleanup.sh
-popd
-
-gcloud iam service-accounts delete trace-test-service-account
-
+# cleanup fib service
+$ pushd fib-service
+$ ./cleanup.sh
+$ popd
+ 
+# cleanup fact service 
+$ pushd fact-service
+$ ./cleanup.sh
+$ popd
+ 
+# delete service account 
+$ gcloud iam service-accounts delete trace-test-service-account
+```
