@@ -71,6 +71,10 @@ $ for i in 1 2 3 4 5 6 7 8 9 10 11 12; do curl -k http://localhost:8080/api/comp
 
 # Deploy to Cloud Run
 
+## Architecture Overview
+
+![system architecture running on Cloud Run](./cloud-run-architecture.jpg)
+
 ## Setup Service Account and Environment Variables
 
 ```bash
