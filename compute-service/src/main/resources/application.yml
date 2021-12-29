@@ -2,10 +2,10 @@ server:
   port: 8080
 
 factservice:
-  host: https://fact-service-pazwaodbkq-uc.a.run.app
+  host: %fact-service-url%
 
 fibservice:
-  host: https://fib-service-pazwaodbkq-uc.a.run.app
+  host: %fib-service-url%
 
 spring:
   application:

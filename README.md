@@ -69,3 +69,43 @@ $ for i in 1 2 3 4 5 6 7 8 9 10 11 12; do curl -k http://localhost:8080/api/comp
 ![Sample Trace](./trace-details.png)
 
 # Deploy to Cloud Run
+
+export PROJECT_ID=$(gcloud config get-value project)
+gcloud config set run/region us-central1
+./compute-service/create-service-account.sh
+
+pushd fact-service
+./build-and-deploy.sh
+export FACT_SERVICE_URL=$(gcloud run services describe fact-service --format="value(status.url)")
+popd
+
+pushd fib-service
+./build-and-deploy.sh
+export FIB_SERVICE_URL=$(gcloud run services describe fib-service --format="value(status.url)")
+popd
+
+pushd compute-service
+sed -i '' "s/%fact-service-url%/$FACT_SERVICE_URL/"  src/main/resources/application.yml
+./build-and-deploy.sh
+export COMPUTE_SERVICE_URL=$(gcloud run services describe compute-service --format="value(status.url)")
+popd
+
+
+
+
+## Cleanup Deployments
+
+pushd compute-service
+./cleanup.sh
+popd
+
+pushd fib-service
+./cleanup.sh
+popd
+
+pushd fact-service
+./cleanup.sh
+popd
+
+gcloud iam service-accounts delete trace-test-service-account
+
