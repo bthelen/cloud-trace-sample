@@ -46,8 +46,9 @@ $ git clone <put url here when we have one>
 ```bash
 # change to correct directory if not already there
 $ cd cloud-trace-sample
-# In each of the directories compute-service, fib-service, and fact-service
-$ mvn spring-boot:run
+# In each of the directories, setup the environment and run compute-service, fib-service, and fact-service
+$ export GOOGLE_CLOUD_PROJECT=`gcloud config list --format 'value(core.project)'`
+$ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 ```
 
@@ -57,5 +58,14 @@ $ mvn spring-boot:run
 $ for i in 1 2 3 4 5 6 7 8 9 10 11 12; do curl -k http://localhost:8080/api/compute/fib/$i; done
 $ for i in 1 2 3 4 5 6 7 8 9 10 11 12; do curl -k http://localhost:8080/api/compute/fact/$i; done
 ```
+
+## Open Traces in Cloud Trace
+
+* Open [Google Cloud Console](https://console.cloud.google.com)
+* Find `Trace` under the `Operations` section in the Navigation Bar
+* Choose `Trace List` 
+* View a trace in the `Select a trace` graph and you should see a trace through the service calls
+
+![Sample Trace](./trace-details.png)
 
 # Deploy to Cloud Run
