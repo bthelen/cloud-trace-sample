@@ -1,0 +1,8 @@
+server:
+  port: 8080
+
+factservice:
+  host: http://localhost:8081
+
+fibservice:
+  host: http://localhost:8082

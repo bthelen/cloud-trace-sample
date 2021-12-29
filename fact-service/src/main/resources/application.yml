@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: fact-service
+  sleuth:
+    sampler:
+      probability: 1
+    web:
+      skipPattern:
+        (^cleanup.*|.+favicon.*)

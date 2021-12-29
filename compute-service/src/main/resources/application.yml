@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+factservice:
+  host: https://fact-service-pazwaodbkq-uc.a.run.app
+
+fibservice:
+  host: https://fib-service-pazwaodbkq-uc.a.run.app
+
+spring:
+  application:
+    name: compute-service
+  sleuth:
+    sampler:
+      probability: 1
+    web:
+      skipPattern:
+        (^cleanup.*|.+favicon.*)
