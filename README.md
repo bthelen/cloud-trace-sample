@@ -23,7 +23,7 @@ credential that will be used by the Spring Cloud GCP trace SpringBoot starter.
 
 ## Architecture Overview
 
-![system architecture running on Cloud Shell](./cloud-shell-architecture.png)
+![system architecture running on Cloud Shell](./cloud-shell-architecture.jpg)
 
 ## Setup Application Default Credential
 
